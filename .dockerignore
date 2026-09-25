@@ -1,0 +1,16 @@
+.git
+.github
+.docker
+.claude
+.idea
+log/
+tmp/
+test/
+node_modules/
+vendor/bundle
+.env
+.env.*
+bin/release
+docker-compose.yml
+.dockerignore
+*.md

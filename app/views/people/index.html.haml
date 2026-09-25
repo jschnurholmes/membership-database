@@ -1,0 +1,42 @@
+- model_class = Person
+.content-header
+  %h1
+    =t '.title', :default => model_class.model_name.human.pluralize.titleize
+    = link_to t('.new', :default => t("helpers.links.new")), new_person_path, class: 'btn btn-primary'
+
+= search_form_for @q do |f|
+  %h3 Filters
+  .field
+    = f.label 'status: active'
+    = check_box_tag('q[active?]', class: 'form-control')
+  .actions
+    = f.submit 'Search'
+
+%table.table.table-striped
+  %thead
+    %tr
+      %th= sort_link @q, :id, model_class.human_attribute_name(:id)
+      %th= sort_link @q, :first_name, model_class.human_attribute_name(:first_name)
+      %th= sort_link @q, :middle_name, model_class.human_attribute_name(:middle_name)
+      %th= sort_link @q, :last_name, model_class.human_attribute_name(:last_name)
+      %th= sort_link @q, :preferred_name, model_class.human_attribute_name(:preferred_name)
+      %th= sort_link @q, :created_at, model_class.human_attribute_name(:created_at)
+      %th= sort_link @q, :active?, 'Status'
+      %th= sort_link @q, :id, 'Expiration Date'
+      %th=t '.actions', :default => t("helpers.actions")
+  %tbody
+    - @people.each do |person|
+      %tr{class: person.tags.where.not(color: nil).map{|tag| "person-tag-#{tag.name}"}}
+        %td= link_to person.id, person_path(person)
+        %td= person.first_name
+        %td= person.middle_name
+        %td= person.last_name
+        %td= person.preferred_name
+        %td=l person.created_at
+        %td= person.active? ? 'Active' : 'Inactive'
+        %td= person.expiration_date
+        %td
+          = link_to t('.edit', :default => t("helpers.links.edit")), edit_person_path(person), :class => 'btn btn-default btn-xs'
+          = link_to t('.destroy', :default => t("helpers.links.destroy")), person_path(person), :method => :delete, :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) }, :class => 'btn btn-xs btn-danger'
+
+= link_to t('.new', :default => t("helpers.links.new")), new_person_path, :class => 'btn btn-primary'

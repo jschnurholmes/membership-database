@@ -1,0 +1,5 @@
+.form-group.row
+  = f.select(:id, Tag.all.collect { |tag| [tag.name, tag.id] }, {}, :class => 'form-control')
+  = f.hidden_field :_destroy
+  = link_to '#', :class => 'btn btn-danger btn-xs _remove_field' do
+    %span{class: 'glyphicon glyphicon-minus'}

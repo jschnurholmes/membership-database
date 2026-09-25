@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+
+AWS_REGION=us-east-1
+AWS_ACCOUNT=717610106072
+ECR_URI="$AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/cdny-members"
+ECS_CLUSTER=cdny-ecs-cluster
+ECS_SERVICE=cdny-members
+TASK_FAMILY=cdny-members
+
+COMMAND="${1:-all}"
+FORCE=false
+[[ "${2:-}" == "--force" ]] && FORCE=true
+
+TAG="manual-$(git rev-parse --short HEAD)"
+IMAGE="$ECR_URI:$TAG"
+
+check_clean_tree() {
+  if [[ "$FORCE" != true && -n "$(git status --porcelain)" ]]; then
+    echo "Working tree has uncommitted changes - the tag ($TAG) wouldn't match what's actually built." >&2
+    echo "Commit first, or re-run with --force to build anyway." >&2
+    exit 1
+  fi
+}
+
+build() {
+  echo "Building $IMAGE"
+  docker build --target production -t "cdny-members:$TAG" .
+}
+
+push() {
+  echo "Pushing $IMAGE"
+  aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com"
+  docker tag "cdny-members:$TAG" "$IMAGE"
+  docker push "$IMAGE"
+}
+
+deploy() {
+  if ! aws ecr describe-images --repository-name cdny-members --image-ids imageTag="$TAG" >/dev/null 2>&1; then
+    echo "Image $IMAGE not found in ECR - push it first (bin/release push) or run 'all'." >&2
+    exit 1
+  fi
+
+  echo "Registering new task definition with image $IMAGE"
+  local tmpfile
+  tmpfile=$(mktemp)
+  # describe-task-definition returns metadata fields register-task-definition won't accept
+  aws ecs describe-task-definition --task-definition "$TASK_FAMILY" --query 'taskDefinition' \
+    | jq --arg IMAGE "$IMAGE" \
+      'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)
+       | .containerDefinitions[0].image = $IMAGE' \
+    > "$tmpfile"
+  aws ecs register-task-definition --cli-input-json "file://$tmpfile"
+  rm -f "$tmpfile"
+
+  echo "Updating service"
+  aws ecs update-service --cluster "$ECS_CLUSTER" --service "$ECS_SERVICE" --task-definition "$TASK_FAMILY" > /dev/null
+  echo "Deployment triggered. Watch progress with:"
+  echo "  aws ecs describe-services --cluster $ECS_CLUSTER --services $ECS_SERVICE --query 'services[0].deployments'"
+}
+
+case "$COMMAND" in
+  build) check_clean_tree; build ;;
+  push) push ;;
+  deploy) deploy ;;
+  all) check_clean_tree; build; push; deploy ;;
+  *)
+    echo "Usage: $0 [build|push|deploy|all] [--force]" >&2
+    exit 1
+    ;;
+esac

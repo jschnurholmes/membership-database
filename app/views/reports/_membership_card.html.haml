@@ -1,0 +1,19 @@
+.card
+  .content
+    .top-row
+      .top-left
+        = image_tag 'cdny_logo.svg'
+      .top-right
+        =get_qr_code membership_card
+      .top-center
+        %p.person-type Member
+        %p.person-info In good standing through
+        %p.expiration-date=l membership_card.expiration_date
+    .member-name-wrap
+      %p.member-name= membership_card.display_name
+    .bottom-block
+      %p.org-name Country Dance * New York
+      %p.sub-org-name A Center of the Country Dance & Song Society of America
+      .bottom
+        .bottom-left Email: info2@cdny.org
+        .bottom-right Website: cdny.org

@@ -1,0 +1,35 @@
+= form_for @membership, :html => { :class => 'form-inline', :style => 'margin-left: 2em' } do |f|
+  .row.control-group
+    .controls
+      = f.label 'Membership period', :class => 'control-label col-sm-3'
+      = f.text_field :membership_period_latest, {value: @membership.membership_periods.latest, |
+      disabled: true, class: 'text-field form-control col-sm-3', size: 23}                                |
+  .row.control-group
+    .controls
+      = f.label :membership_type_id, :class => 'control-label col-sm-3'
+      = f.select :membership_type_id, MembershipType.all.collect { |mtype| [mtype.name, mtype.id] }, {}, class: 'form-control col-sm-3'
+  -# TODO: Set default values for effective date (today) and expiration date (next cycle)
+  -#.row.control-group.top10
+  -#  .controls
+  -#    = f.label :membership_period_id, :class => 'control-label col-sm-3'
+  -#    = f.select :membership_period_id, MembershipPeriod.all.reverse_order.collect { |mperiod| [mperiod.to_s, mperiod.id] }, {}, class: 'form-control col-sm-3'
+  .row.control-group.top10
+    .controls
+      =f.label :mailing_preference_id, :class => 'control-label col-sm-3'
+      = f.select :mailing_preference_id, MailingPreference.all.collect { |pref| [pref.name, pref.id] }, {}, class: 'form-control col-sm-3'
+  %br
+  .row.container-fluid.scrollable.well.col-sm-7{style: 'min-height: 200px; max-height: 400px'}
+    %fieldset.col-md-7
+      %legend
+        Addresses
+        = link_to_add_fields f, :addresses do
+          %span{class: 'glyphicon glyphicon-plus'}
+      = f.fields_for :addresses do |builder|
+        = render 'addresses', :f => builder
+  .row.control-group.container-fluid.scrollable.well.col-sm-7.top7{style: 'min-height: 200px; max-height: 400px'}
+    %legend
+      Members
+    = render 'people'
+  .row.form-actions.col-sm-7.top7
+    = f.submit nil, :class => 'btn btn-primary'
+    = link_to t('.cancel', :default => t("helpers.links.cancel")), memberships_path, :class => 'btn'

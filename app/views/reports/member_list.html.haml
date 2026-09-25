@@ -1,0 +1,18 @@
+- model_class = Person
+.content-header
+  %h1=t '.title', :default => 'Members'
+%table.table.table-striped
+  %thead
+    %tr
+      %th= sort_link @q, :last_name, model_class.human_attribute_name(:last_name)
+      %th= sort_link @q, :first_name, model_class.human_attribute_name(:first_name)
+      %th= sort_link @q, :middle_name, model_class.human_attribute_name(:middle_name)
+      %th= sort_link @q, :membership_latest_expiration_date, 'Expires'
+  %tbody
+    - @people.each do |member|
+      %tr
+        %td= member.last_name
+        %td= member.first_name
+        %td= member.middle_name
+        %td= member.expiration_date == 'N/A' ? 'N/A' : l(member.expiration_date)
+

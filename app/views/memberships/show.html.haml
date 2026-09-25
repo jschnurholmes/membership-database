@@ -1,0 +1,41 @@
+- model_class = Membership
+.content-header
+  %h1=t '.title', :default => model_class.model_name.human.titleize
+  %p= notice
+.data.col-sm-4
+  .field
+    %strong= model_class.human_attribute_name(:membership_type_id) + ':'
+    %br
+    = @membership.membership_type
+  .field
+    %strong= model_class.human_attribute_name(:membership_period_id) + ':'
+    %br
+    = @membership.membership_periods.latest
+  .field
+    %strong= model_class.human_attribute_name(:mailing_preference_id) + ':'
+    %br
+    = @membership.mailing_preference
+  .field
+    %strong Members:
+    %br
+    - @membership.members.each do |member|
+      %p= link_to(member.display_name, person_path(member))
+  .field
+    %strong Mailing Address
+    - @membership.addresses.each do |address|
+      %p
+        = address.line_2.present? ? address.line_1 + ', ' + address.line_2 : address.line_1
+        %br
+        = "#{address.city}, #{address.state.abbreviation} #{address.zip_code}"
+
+  .form-actions
+    = link_to t('.back', :default => t("helpers.links.back")), memberships_path, :class => 'btn'
+    = link_to t('.renew', :default => t("helpers.links.renew")), renew_membership_path, class: 'btn btn-success', method: :post
+    = link_to t('.edit', :default => t("helpers.links.edit")), edit_membership_path(@membership), :class => 'btn btn-primary'
+    = link_to t('.destroy', :default => t("helpers.links.destroy")), membership_path(@membership), :method => "delete", :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) }, :class => 'btn btn-danger'
+
+
+  %h3 Membership History
+  - @membership.membership_periods.order(expiration_date: :desc).each do |period|
+    .field
+    %p= "#{period.effective_date} - #{period.expiration_date}"

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Members</title>
+  <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+  <style><%= tag_color_styles %></style>
+  <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+  <meta robots="noindex,nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+</head>
+<body>
+
+<div class="page-heading">
+  <%= render 'application/navigation' %>
+</div>
+
+<div class="page-content">
+  <%= yield %>
+</div>
+
+</body>
+</html>

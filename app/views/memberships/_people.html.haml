@@ -1,0 +1,4 @@
+- current_and_potential_members.each do |person|
+  .row.col-sm-8{class: person.tags.where.not(color: nil).map{|tag| "person-tag-#{tag.name}"}}
+    = check_box_tag 'membership[member_ids][]', person.id, @membership.members.include?(person), id: "person_#{person.id}"
+    = label_tag "person_#{person.id}" + (person.preferred_name.present? ? " (#{person.preferred_name})" : ''), person.sortable_name, class: 'control-label'

@@ -1,0 +1,47 @@
+- model_class = Person
+.content-header
+  %h1=t '.title', default: [@person.first_name, @person.preferred_name.present? ? %Q{"#{@person.preferred_name}"} : nil, @person.middle_name, @person.last_name].join(' ')
+
+.page-content.people{class: @person.tags.where.not(color: nil).map{|tag| "person-tag-#{tag.name}"}}
+  .center-box
+    %p
+      %strong= model_class.human_attribute_name(:first_name) + ':'
+      %br
+      = @person.first_name
+    %p
+      %strong= model_class.human_attribute_name(:middle_name) + ':'
+      %br
+      = @person.middle_name
+    %p
+      %strong= model_class.human_attribute_name(:last_name) + ':'
+      %br
+      = @person.last_name
+    %p
+      - if @person.phone_numbers.any?
+        %strong Phone Numbers
+        - @person.phone_numbers.each do |phone_number|
+          .phone_number
+            = "#{phone_number.type}: #{phone_number}"
+          %br
+    %p
+      - if @person.email_addresses.any?
+        %strong Email Addresses
+        - @person.email_addresses.each do |email_address|
+          .email_address
+            = "#{email_address.type}: #{email_address}"
+
+    %p
+      - if @person.tags.any?
+        %strong Tags
+        - @person.tags.each do |tag|
+          .tag
+            = tag.name
+
+    %p
+      - if @person.memberships.any?
+        =link_to 'View Membership', membership_path(@person.memberships.latest), class: 'btn btn-primary'
+      - else
+        =link_to 'Create Membership', new_membership_path, class: 'btn btn-primary'
+    = link_to t('.back', :default => t("helpers.links.back")), people_path, :class => 'btn btn-default'
+    = link_to t('.edit', :default => t("helpers.links.edit")), edit_person_path(@person), :class => 'btn btn-default'
+    = link_to t('.destroy', :default => t("helpers.links.destroy")), person_path(@person), :method => "delete", :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) }, :class => 'btn btn-danger'

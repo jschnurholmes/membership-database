@@ -1,0 +1,43 @@
+= form_for @person, :html => { class: 'form-inline', role: 'form' } do |f|
+  .row.col-md-9
+    .form-group.col-md-4
+      = f.label :first_name, :class => 'control-label form-control'
+      = f.text_field :first_name, :class => 'text_field form-control'
+    .form-group.col-md-4
+      = f.label :middle_name, :class => 'control-label form-control'
+      = f.text_field :middle_name, :class => 'text_field form-control'
+    .form-group.col-md-4
+      = f.label :last_name, :class => 'control-label form-control'
+      = f.text_field :last_name, :class => 'text_field form-control'
+    %br
+    .form-group.col-md-4
+      = f.label :preferred_name, :class => 'control-label form-control', title: 'Please include your last name'
+      = f.text_field :preferred_name, :class => 'text_field form-control'
+  .row.col-md-7.top13.well
+    %fieldset.col-md-7
+      %legend
+        Phone numbers
+        = link_to_add_fields f, :phone_numbers do
+          %span{class: 'glyphicon glyphicon-plus'}
+      = f.fields_for :phone_numbers do |builder|
+        = render 'phone_numbers', :f => builder
+  .row.col-md-7.top13.well
+    %fieldset.col-md-7
+      %legend
+        Email Addresses
+        = link_to_add_fields f, :email_addresses do
+          %span{class: 'glyphicon glyphicon-plus'}
+      = f.fields_for :email_addresses do |builder|
+        = render 'email_addresses', :f => builder
+  .row.col-md-7.top13.well
+    %fieldset.col-md-7
+      %legend
+        Tags
+        = link_to_add_fields f, :tags do
+          %span{class: 'glyphicon glyphicon-plus'}
+      = f.fields_for :tags do |builder|
+        = render 'tags', :f => builder
+  .row.col-md-9.top13
+    .form-actions.col-md-6
+      = f.submit 'Save', :class => 'btn btn-primary'
+      = link_to t('.cancel', :default => t("helpers.links.cancel")), people_path, :class => 'btn btn-danger'

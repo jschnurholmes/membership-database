@@ -1,0 +1,128 @@
+@page {
+    size: 8.5in 11in;
+    margin: 0.5in ;
+}
+.card {
+    float: left;
+    page-break-inside: avoid;
+    width: 3.35in;
+    height: 1.9in;
+    padding: 0;
+    margin: 0;
+    border-style: dashed;
+    border-width: 1px;
+    font-family: helvetica, verdana, arial, sans-serif;
+    box-sizing: border-box;
+}
+.content {
+    height: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    padding: .2in .15in 0.03in .15in;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+}
+.top-row {
+    position: relative;
+    min-height: 70px;
+}
+.top-left {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin-top: 0;
+    font-size: x-small;
+}
+.top-left img{
+    margin-top: 0;
+    max-height: 65px;
+    display: block;
+}
+.top-left p{
+    margin-top: 0;
+}
+.top-center {
+    line-height: 40%;
+    text-align: center;
+    padding: 0;
+    margin: 0 65px;
+}
+.top-right {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding-top: 5px;
+    width: 65px;
+}
+.top-right img{
+    max-height: 65px;
+}
+.person-type {
+    margin-top: 0;
+    padding-top: 10pt;
+    line-height: 0;
+    font-size: 20pt;
+}
+.person-info {
+    font-size: 10pt;
+    font-weight: bold;
+    font-style: oblique;
+    margin: 0;
+    padding-bottom: 8pt;
+    letter-spacing: -0.05em;
+}
+.expiration-date {
+    margin: 0;
+    font-size: 11pt;
+    font-weight: lighter;
+    font-style: oblique;
+    padding-bottom: 5pt;
+}
+
+.member-name-wrap {
+    min-height: 0;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.member-name {
+    margin: 0;
+    font-size: 12pt;
+    font-weight: 500;
+    line-height: 1.1;
+    text-align: center;
+    max-width: 100%;
+}
+
+.bottom-block {
+    text-align: center;
+}
+.org-name {
+    margin:0;
+    font-size: 15pt;
+    font-weight: 100;
+    line-height: 1.0;
+    padding-top: 1.5pt;
+    padding-bottom: 2.25pt;
+}
+.sub-org-name {
+    margin: 0;
+    font-size: 7pt;
+    font-weight: lighter;
+    font-style: oblique;
+    line-height: 1.0;
+    padding-bottom: 5.9pt;
+}
+.bottom {
+    font-size: 7pt;
+    font-weight: normal;
+    line-height: normal;
+}
+.bottom-left {
+    float: left
+}
+.bottom-right {
+    float: right;
+}

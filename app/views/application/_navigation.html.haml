@@ -1,0 +1,29 @@
+%nav.navbar.navbar-expand-lg.navbar-dark.bg-dark.fixed-top
+  .container-fluid
+    %a.navbar-brand{href: root_path} CD*NY Membership Database
+    %button.navbar-toggler{"aria-controls" => "navbarNav", "aria-expanded" => "false", "aria-label" => "Toggle navigation", "data-bs-target" => "#navbarNav", "data-bs-toggle" => "collapse", type: "button"}
+      %span.navbar-toggler-icon
+    #navbarNav.collapse.navbar-collapse
+      %ul.navbar-nav.me-auto.mb-2.mb-lg-0
+        %li.nav-item
+          = link_to 'Memberships', memberships_path, class: 'nav-link'
+        %li.nav-item
+          = link_to 'People', people_path, class: 'nav-link'
+        %li.nav-item.dropdown
+          %a.nav-link.dropdown-toggle#reportsDropdown{"aria-expanded" => "false", "data-bs-toggle" => "dropdown", href: "#", role: "button"}
+            Reports
+          %ul.dropdown-menu{"aria-labelledby" => "reportsDropdown"}
+            %li
+              = link_to 'List Reports', reports_path, class: 'dropdown-item'
+            %li
+              %hr.dropdown-divider
+            %li
+              = link_to 'Address List', reports_address_list_path(format: :csv), class: 'dropdown-item'
+            %li
+              = link_to 'Member Directory', reports_member_directory_path(format: :csv), class: 'dropdown-item'
+            %li
+              = link_to 'Member List', reports_member_list_path, class: 'dropdown-item'
+            %li
+              = link_to 'Membership Cards', reports_membership_cards_path, class: 'dropdown-item'
+      .d-flex
+        = link_to t('.sign_out', default: t("helpers.links.sign_out", default: 'Sign Out')), destroy_user_session_path, method: :delete, data: { turbo_method: :delete, turbo_confirm: t('.confirm', default: t("helpers.links.confirm", default: 'Are you sure?')) }, class: 'btn btn-danger'

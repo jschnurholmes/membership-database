@@ -1,0 +1,16 @@
+<%=
+    memberships = Membership.select { |m| m.addresses.count > 0 }
+    CSV.generate(@options) do |csv|
+      csv << [ 'Mail Label', 'Address', 'City', 'St', 'Zip' ]
+      memberships.each do |m|
+        m.addresses.each do |a|
+        csv << [ m.member_names,
+                 a.line_2.present? ? a.line_1 + ', ' + a.line_2 : a.line_1,
+                 a.city,
+                 a.state.abbreviation,
+                 a.zip_code
+               ]
+        end
+      end
+    end
+%>

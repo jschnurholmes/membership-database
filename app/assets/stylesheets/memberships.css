@@ -1,0 +1,11 @@
+/*
+  Place all the styles related to the matching controller here.
+  They will automatically be included in application.css.
+*/
+.scrollable {
+    overflow: auto;
+}
+
+h1 {
+    margin-left: 1em;
+}
