@@ -1,0 +1,6 @@
+.mb-3
+  %label.form-label.fw-bold Members
+  .form-text.mb-2 Leave all unchecked to include everyone matching the other filters.
+  #member-filter-hidden-notice.form-text.text-warning.mb-2{ hidden: true }
+  #member-filter-options{ data: { url: report_filter_members_path(report: report.key) } }
+    = render 'reports/member_options', people: member_filter_people(values), selected_ids: Array(values[:with_members]).map(&:to_s)

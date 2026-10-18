@@ -25,22 +25,18 @@ module Members
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
     #
-    # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
 
     config.generators do |g|
       g.template_engine :haml
     end
 
-    # Rails 7 uses a different Active Storage configuration
-    config.active_storage.variant_processor = :vips if defined?(ActiveStorage)
-
-    # Asset pipeline configuration
-    config.assets.enabled = true
-    config.assets.paths << Rails.root.join('app', 'assets', 'fonts')
-    config.assets.paths << Rails.root.join('app', 'assets', 'images')
-
     # Sender address for all outgoing mail (ActionMailer default and Devise).
     config.x.mail_from = ENV.fetch('MAIL_FROM', 'admin@cdny.org')
+
+    # Membership dates follow the organization's calendar, whatever the server's or viewer's time zone.
+    config.x.organization_time_zone = 'Eastern Time (US & Canada)'
+
+    config.time_zone = config.x.organization_time_zone
   end
 end

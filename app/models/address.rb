@@ -1,5 +1,5 @@
 class Address < ApplicationRecord
-  include Discard::Model
+  include SoftDeletable
   # Relationships
   belongs_to :state
   belongs_to :membership

@@ -2,65 +2,50 @@
 // Import Bootstrap
 @import "bootstrap";
 
+// Bootstrap Icons, with font URLs resolved through the asset pipeline
+$bootstrap-icons-font-src: font-url("bootstrap-icons.woff2") format("woff2"),
+                           font-url("bootstrap-icons.woff") format("woff");
+@import "bootstrap-icons";
+
 // Custom overrides
 body {
   padding-top: 60px;
 }
 
-section {
-  overflow: auto;
+//Classes to add top padding
+.top5 { padding-top: 5px;}
+.top7 { padding-top: 7px;}
+.top10 { padding-top: 10px;}
+.top13 { padding-top: 13px;}
+
+// Bootstrap 3's .well, dropped in Bootstrap 5
+.well {
+  min-height: 20px;
+  padding: 19px;
+  margin-bottom: 20px;
+  background-color: #f5f5f5;
+  border: 1px solid #e3e3e3;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .05);
 }
 
-textarea {
-  resize: vertical;
-}
-
-.center {
-  text-align: center;
-  h1 {
-    margin-bottom: 10px;
+// Bootstrap 3's .form-inline, dropped in Bootstrap 5
+@media (min-width: 768px) {
+  .form-inline .form-group {
+    display: inline-block;
+    margin-bottom: 0;
+    vertical-align: middle;
   }
-}
 
-// Typography
-h1, h2, h3, h4, h5, h6 {
-  line-height: 1;
-}
+  .form-inline .form-control,
+  .form-inline .form-select {
+    display: inline-block;
+    width: auto;
+    vertical-align: middle;
+  }
 
-h1 {
-  font-size: 3em;
-  letter-spacing: -2px;
-  margin-bottom: 30px;
-  text-align: center;
-}
-
-h2 {
-  font-size: 1.2em;
-  letter-spacing: -1px;
-  margin-bottom: 30px;
-  text-align: center;
-  font-weight: normal;
-  color: #999;
-}
-
-p {
-  font-size: 1.1em;
-  line-height: 1.7em;
-}
-
-// Sidebar
-aside {
-  section {
-    padding: 10px 0;
-    border-top: 1px solid #eee;
-    &:first-child {
-      border: 0;
-      padding-top: 0;
-    }
-    span {
-      display: block;
-      margin-bottom: 3px;
-      line-height: 1;
-    }
+  .form-inline .col-form-label {
+    margin-bottom: 0;
+    vertical-align: middle;
   }
 }

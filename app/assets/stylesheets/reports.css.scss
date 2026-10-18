@@ -1,7 +1,8 @@
 // Place all the styles related to the reports controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
-form input[type='checkbox'] {
+// Bootstrap 5's form-check-input sets its own margins to align with its label.
+form input[type='checkbox']:not(.form-check-input) {
   margin: 0px 5px;
 }
 

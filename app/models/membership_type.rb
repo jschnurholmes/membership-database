@@ -1,6 +1,6 @@
 class MembershipType < ApplicationRecord
   # Behaviors
-  include Discard::Model
+  include SoftDeletable
 
   # Ransack configuration
   def self.ransackable_attributes(auth_object = nil)

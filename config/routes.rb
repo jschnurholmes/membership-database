@@ -7,23 +7,6 @@ Rails.application.routes.draw do
 
   devise_for :users
 
-  namespace :api do
-    namespace :v1 do
-      resources 'memberships', only: [] do
-        collection do
-          get 'index', to: 'memberships#index'
-        end
-        member do
-          get 'show', to: 'memberships#show'
-          get 'save', to: 'memberships#save'
-        end
-      end
-
-      resources :members, only: [:index]
-      get 'members', to: 'members#index'
-    end
-  end
-
   resources :memberships do
     member do
       post 'renew', to: 'memberships#renew'
@@ -32,13 +15,24 @@ Rails.application.routes.draw do
 
   get 'people/member_list', to: 'people#member_list'
   get 'people/membership_cards', to: 'people#membership_cards'
-  resources :people
+  resources :people do
+    member do
+      get 'qr_code', to: 'people#qr_code'
+    end
+  end
 
   get 'reports',                     to: 'reports#index', as: :reports
+  get 'reports/:report/filters',     to: 'reports#filters', as: :report_filters
+  get 'reports/:report/filters/members',
+                                     to: 'reports#filter_members', as: :report_filter_members
   get 'reports/address_list',        to: 'reports#address_list', as: :reports_address_list
+  post 'reports/address_list',       to: 'reports#address_list'
   get 'reports/email_list',          to: 'reports#email_list', as: :reports_email_list
+  post 'reports/email_list',         to: 'reports#email_list'
   get 'reports/member_directory',    to: 'reports#member_directory', as: :reports_member_directory
+  post 'reports/member_directory',   to: 'reports#member_directory'
   get 'reports/member_list',         to: 'reports#member_list', as: :reports_member_list
+  post 'reports/member_list',        to: 'reports#member_list'
   get 'reports/membership_cards',    to: 'reports#membership_cards', as: :reports_membership_cards
   post 'reports/membership_cards',   to: 'reports#membership_cards'
 

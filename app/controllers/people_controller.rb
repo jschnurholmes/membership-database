@@ -1,17 +1,25 @@
 class PeopleController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_person, only: [:show, :edit, :update, :destroy]
+  before_action :set_person, only: [:show, :edit, :update, :destroy, :qr_code]
 
   # GET /people
   # GET /people.json
   def index
     @q = Person.ransack(params[:q])
-    @people = @q.result
+    @pagy, @people = paginate(@q.result.order(:id).preload(:tags, memberships: :membership_periods))
+    @active_person_ids = Person.active_on(Organization.today).where(id: @people.map(&:id)).pluck(:id).to_set
   end
 
   # GET /people/1
   # GET /people/1.json
   def show
+  end
+
+  # GET /people/1/qr_code
+  # SVG membership card QR code, generated from the person's own card_data.
+  def qr_code
+    svg = RQRCode::QRCode.new(@person.card_data).as_svg(module_size: 6, standalone: true, use_path: true)
+    render body: svg, content_type: 'image/svg+xml'
   end
 
   # GET /people/new

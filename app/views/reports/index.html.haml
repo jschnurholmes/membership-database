@@ -3,63 +3,15 @@
     = t '.title', :default => 'Reports'
 
 %ul.nav.nav-pills.flex-column
-  %li.nav-item.dropdown
-    %a.nav-link.dropdown-toggle{"data-bs-toggle" => "dropdown", href: "#"}
-      Address List
-    %ul.dropdown-menu
-      %li
-        = link_to 'CSV', reports_address_list_path(format: :csv), class: 'dropdown-item'
-  %li.nav-item
-    = link_to 'Email List', reports_email_list_path, class: 'nav-link'
-  %li.nav-item
-    = link_to 'Member Directory', reports_member_directory_path(format: :csv), class: 'nav-link'
-  %li.nav-item.dropdown
-    %a.nav-link.dropdown-toggle{"data-bs-toggle" => "dropdown", href: "#"}
-      Member List
-    %ul.dropdown-menu
-      %li
-        = link_to 'HTML', reports_member_list_path, class: 'dropdown-item'
-      %li
-        = link_to 'CSV', reports_member_list_path(format: :csv), class: 'dropdown-item'
-  %li.nav-item.dropdown
-    %a.nav-link.dropdown-toggle{"data-bs-toggle" => "dropdown", href: "#"}
-      Membership Cards
-    %ul.dropdown-menu
-      %li
-        = link_to 'All members', reports_membership_cards_path, class: 'dropdown-item'
-      %li
-        = link_to 'Select members', '#member-selector', class: 'dropdown-item select-members', id: 'select-members-for-cards', 'data-bs-target' => '#member-selector', 'data-bs-toggle' => 'modal'
-      %li
-        = link_to 'Select effective date', '#effective-date-selector', class: 'dropdown-item select-effective-date', id: 'select-effective-date-for-cards', 'data-bs-target' => '#effective-date-selector', 'data-bs-toggle' => 'modal'
+  - Reports::Definition.all.each do |report|
+    %li.nav-item
+      = report_menu_link(report, 'nav-link')
 
-%h4 Members: #{Person.all.select{ |p| p.active? }.count }
+%h4 Members: #{Person.active_on(Organization.today).count}
 .membership-types
+  - counts = Person.count_by_membership_type
   -MembershipType.all.each do |mt|
-    -cnt = Person.includes(:memberships).select{ |p| p.active? && p.memberships.latest.membership_type == mt }.count
+    -cnt = counts.fetch(mt.id, 0)
     - if cnt > 0
-      .membership-type{ sytle: 'float: left' }
+      .membership-type{ style: 'float: left' }
         =  mt.name + ":" + cnt.to_s
-
-#member-selector.modal.fade{:role => "dialog"}
-  .modal-dialog.modal-lg
-    .modal-content
-      .modal-header
-        %h4.modal-title Select Members
-        %button.btn-close{"aria-label" => "Close", "data-bs-dismiss" => "modal", type: "button"}
-      .modal-body
-        %p Some text in the modal.
-      .modal-footer
-        %button.btn.btn-secondary{'data-bs-dismiss' => 'modal', type: 'button'} Cancel
-        %button.btn.btn-primary{type: 'submit', 'data-form' => '#member-selector-form'} Generate Cards
-
-#effective-date-selector.modal.fade{role: 'dialog'}
-  .modal-dialog.modal-lg
-    .modal-content
-      .modal-header
-        %h4.modal-title Select Effective Date
-        %button.btn-close{"aria-label" => "Close", "data-bs-dismiss" => "modal", type: "button"}
-      .modal-body
-        %p Initial text.
-      .modal-footer
-        %button.btn.btn-secondary{'data-bs-dismiss' => 'modal', type:'button'} Cancel
-        %button.btn.btn-primary{type: 'submit', 'data-form' => '#effective-date-selector-form'} Generate Cards

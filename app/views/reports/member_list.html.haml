@@ -4,10 +4,10 @@
 %table.table.table-striped
   %thead
     %tr
-      %th= sort_link @q, :last_name, model_class.human_attribute_name(:last_name)
-      %th= sort_link @q, :first_name, model_class.human_attribute_name(:first_name)
-      %th= sort_link @q, :middle_name, model_class.human_attribute_name(:middle_name)
-      %th= sort_link @q, :membership_latest_expiration_date, 'Expires'
+      %th= report_sort_link @q, :last_name, model_class.human_attribute_name(:last_name)
+      %th= report_sort_link @q, :first_name, model_class.human_attribute_name(:first_name)
+      %th= report_sort_link @q, :middle_name, model_class.human_attribute_name(:middle_name)
+      %th= report_sort_link @q, :membership_latest_expiration_date, 'Expires'
   %tbody
     - @people.each do |member|
       %tr

@@ -1,7 +1,7 @@
-.form-group.row.top10
-  .control-group.col-sm-6
+.form-group.top10.clearfix
+  .control-group.col-md-6.float-start
     .row
-      = f.select(:address_type_id, AddressType.all.collect { |type| [type.name, type.id] }, {}, class: 'form-control')
+      = f.select(:address_type_id, AddressType.all.collect { |type| [type.name, type.id] }, {}, class: 'form-select')
     .row
       = f.text_field :line_1, :class => 'text-field form-control', :type => 'text', :placeholder => 'Address Line 1'
     .row
@@ -9,8 +9,8 @@
     .row
       = f.text_field :city, :class => 'text-field form-control', :type => 'text', :placeholder => 'City'
     .row
-      = f.select(:state_id, State.all.collect{|state| ["#{state.abbreviation} - #{state.name}", state.id]}, {}, class: 'form-control col-sm-1', style: 'width: 58px !important;')
-      = f.text_field :zip_code, :class => 'text-field form-control col-sm-4', :type => 'number', :placeholder => 'Zip Code'
+      = f.select(:state_id, State.all.collect{|state| ["#{state.abbreviation} - #{state.name}", state.id]}, {}, class: 'form-select col-md-1', style: 'width: 90px !important;')
+      = f.text_field :zip_code, :class => 'text-field form-control col-md-4', :type => 'number', :placeholder => 'Zip Code'
   = f.hidden_field :_destroy
-  = link_to '#', :class => 'btn btn-danger btn-xs _remove_field' do
-    %span{class: 'glyphicon glyphicon-minus'}
+  = link_to '#', :class => 'btn btn-danger btn-sm _remove_field', 'aria-label' => 'Remove address' do
+    %span{class: 'bi bi-dash-lg', 'aria-hidden' => 'true'}

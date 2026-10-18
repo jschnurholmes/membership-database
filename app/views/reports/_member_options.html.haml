@@ -1,0 +1,10 @@
+- people = people.to_a
+- if people.empty?
+  .form-text No members match the other filters.
+- else
+  .row
+    - people.each do |person|
+      .col-md-4
+        .form-check
+          %input.form-check-input{ type: 'checkbox', name: 'q[with_members][]', value: person.id, id: "member-filter-#{person.id}", checked: selected_ids.include?(person.id.to_s) }
+          %label.form-check-label{ for: "member-filter-#{person.id}" }= "#{person.last_name}, #{person.first_name}"

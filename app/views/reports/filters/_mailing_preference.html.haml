@@ -1,0 +1,9 @@
+- selected_ids = Array(values[:with_mailing_preferences]).map(&:to_s)
+.mb-3
+  %label.form-label.fw-bold Mailing Preference
+  .row
+    - MailingPreference.order(:name).each do |mailing_preference|
+      .col-md-4
+        .form-check
+          %input.form-check-input{ type: 'checkbox', name: 'q[with_mailing_preferences][]', value: mailing_preference.id, id: "mailing-preference-filter-#{mailing_preference.id}", checked: selected_ids.include?(mailing_preference.id.to_s) }
+          %label.form-check-label{ for: "mailing-preference-filter-#{mailing_preference.id}" }= mailing_preference.name

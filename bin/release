@@ -8,6 +8,7 @@ ECR_URI="$AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/cdny-members"
 ECS_CLUSTER=cdny-ecs-cluster
 ECS_SERVICE=cdny-members
 TASK_FAMILY=cdny-members
+ORIGIN_REF=origin/master
 
 COMMAND="${1:-all}"
 FORCE=false
@@ -22,6 +23,55 @@ check_clean_tree() {
     echo "Commit first, or re-run with --force to build anyway." >&2
     exit 1
   fi
+}
+
+# Deliberately not bypassed by --force: releasing code that isn't on origin/master
+# always warrants a conscious decision.
+check_origin_master() {
+  echo "Fetching $ORIGIN_REF"
+  if ! git fetch --quiet origin master; then
+    echo "Could not fetch from origin - unable to confirm HEAD matches $ORIGIN_REF." >&2
+    exit 1
+  fi
+
+  local origin_sha
+  if ! origin_sha=$(git rev-parse --verify --quiet "$ORIGIN_REF"); then
+    echo "Could not resolve $ORIGIN_REF - unable to confirm what HEAD should match." >&2
+    exit 1
+  fi
+
+  [[ "$(git rev-parse HEAD)" == "$origin_sha" ]] && return 0
+
+  local ahead behind relation
+  ahead=$(git rev-list --count "$ORIGIN_REF..HEAD")
+  behind=$(git rev-list --count "HEAD..$ORIGIN_REF")
+  if (( ahead > 0 && behind > 0 )); then
+    relation="has diverged from $ORIGIN_REF ($ahead ahead, $behind behind)"
+  elif (( ahead > 0 )); then
+    relation="is $ahead commit(s) ahead of $ORIGIN_REF"
+  else
+    relation="is $behind commit(s) behind $ORIGIN_REF"
+  fi
+
+  echo "HEAD $relation." >&2
+  echo "Releasing $TAG would put code that isn't on $ORIGIN_REF into production." >&2
+
+  if [[ ! -t 0 ]]; then
+    echo "Not running interactively - cannot ask for confirmation. Aborting." >&2
+    exit 1
+  fi
+
+  local reply
+  read -r -p "Continue anyway? (Y/n) " reply
+  case "$reply" in
+    [Yy]|[Yy][Ee][Ss]) ;;
+    *) echo "Aborted." >&2; exit 1 ;;
+  esac
+}
+
+report_deployment() {
+  echo "Deployment triggered. Watch progress with:"
+  echo "  aws ecs describe-services --cluster $ECS_CLUSTER --services $ECS_SERVICE --query 'services[0].deployments'"
 }
 
 build() {
@@ -56,17 +106,25 @@ deploy() {
 
   echo "Updating service"
   aws ecs update-service --cluster "$ECS_CLUSTER" --service "$ECS_SERVICE" --task-definition "$TASK_FAMILY" > /dev/null
-  echo "Deployment triggered. Watch progress with:"
-  echo "  aws ecs describe-services --cluster $ECS_CLUSTER --services $ECS_SERVICE --query 'services[0].deployments'"
+  report_deployment
+}
+
+# Restarts the tasks on the task definition the service already has - no new
+# image, no git state involved.
+redeploy() {
+  echo "Forcing a new deployment of the service's current task definition"
+  aws ecs update-service --cluster "$ECS_CLUSTER" --service "$ECS_SERVICE" --force-new-deployment > /dev/null
+  report_deployment
 }
 
 case "$COMMAND" in
-  build) check_clean_tree; build ;;
+  build) check_clean_tree; check_origin_master; build ;;
   push) push ;;
-  deploy) deploy ;;
-  all) check_clean_tree; build; push; deploy ;;
+  deploy) check_origin_master; deploy ;;
+  redeploy) redeploy ;;
+  all) check_clean_tree; check_origin_master; build; push; deploy ;;
   *)
-    echo "Usage: $0 [build|push|deploy|all] [--force]" >&2
+    echo "Usage: $0 [build|push|deploy|redeploy|all] [--force]" >&2
     exit 1
     ;;
 esac

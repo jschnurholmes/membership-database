@@ -1,0 +1,9 @@
+- selected_ids = Array(values[:in_membership_periods]).map(&:to_s)
+.mb-3
+  %label.form-label.fw-bold Membership Period
+  .row
+    - MembershipPeriod.order(effective_date: :desc, expiration_date: :desc).each do |membership_period|
+      .col-md-6
+        .form-check
+          %input.form-check-input{ type: 'checkbox', name: 'q[in_membership_periods][]', value: membership_period.id, id: "membership-period-filter-#{membership_period.id}", checked: selected_ids.include?(membership_period.id.to_s) }
+          %label.form-check-label{ for: "membership-period-filter-#{membership_period.id}" }= membership_period

@@ -1,0 +1,8 @@
+.d-flex.flex-wrap.align-items-center.gap-3.my-3
+  - if pagy
+    != pagy.series_nav(:bootstrap, classes: 'pagination mb-0')
+    != pagy.info_tag
+  .btn-group.btn-group-sm{ role: 'group', 'aria-label' => 'Records per page' }
+    - ApplicationController::PER_PAGE_OPTIONS.each do |limit|
+      = per_page_link(pagy, limit)
+    = per_page_link(pagy, 'all', 'All')

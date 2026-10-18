@@ -1,6 +1,6 @@
-.form-group.row
-  = f.select(:type_id, EmailType.all.collect { |type| [type.name, type.id] }, {}, :class => 'form-control')
+.form-group
+  = f.select(:type_id, EmailType.all.collect { |type| [type.name, type.id] }, {}, :class => 'form-select')
   = f.text_field :email, :class => 'text-field form-control', :type => 'email', :placeholder => 'user@example.com'
   = f.hidden_field :_destroy
-  = link_to '#', :class => 'btn btn-danger btn-xs _remove_field' do
-    %span{class: 'glyphicon glyphicon-minus'}
+  = link_to '#', :class => 'btn btn-danger btn-sm _remove_field', 'aria-label' => 'Remove email address' do
+    %span{class: 'bi bi-dash-lg', 'aria-hidden' => 'true'}

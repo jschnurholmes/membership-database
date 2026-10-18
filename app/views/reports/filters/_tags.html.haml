@@ -1,0 +1,15 @@
+- selected_tags = Array(values[:tag_names])
+- excluding = values[:tag_mode].to_s == 'exclude'
+.mb-3
+  %label.form-label.fw-bold Tags
+  .btn-group.btn-group-sm.d-block.mb-2{ role: 'group', 'aria-label' => 'Tag filter mode' }
+    %input#tag-mode-include.btn-check{ type: 'radio', name: 'q[tag_mode]', value: 'include', checked: !excluding, autocomplete: 'off' }
+    %label.btn.btn-outline-secondary{ for: 'tag-mode-include' } Include
+    %input#tag-mode-exclude.btn-check{ type: 'radio', name: 'q[tag_mode]', value: 'exclude', checked: excluding, autocomplete: 'off' }
+    %label.btn.btn-outline-secondary{ for: 'tag-mode-exclude' } Exclude
+  .row
+    - Tag.order(:priority, :name).each do |tag|
+      .col-md-4
+        .form-check
+          %input.form-check-input{ type: 'checkbox', name: 'q[tag_names][]', value: tag.name, id: "tag-filter-#{tag.id}", checked: selected_tags.include?(tag.name) }
+          %label.form-check-label{ for: "tag-filter-#{tag.id}" }= tag.name.titleize

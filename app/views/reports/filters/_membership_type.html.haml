@@ -1,0 +1,9 @@
+- selected_ids = Array(values[:with_membership_types]).map(&:to_s)
+.mb-3
+  %label.form-label.fw-bold Membership Type
+  .row
+    - MembershipType.order(:name).each do |membership_type|
+      .col-md-4
+        .form-check
+          %input.form-check-input{ type: 'checkbox', name: 'q[with_membership_types][]', value: membership_type.id, id: "membership-type-filter-#{membership_type.id}", checked: selected_ids.include?(membership_type.id.to_s) }
+          %label.form-check-label{ for: "membership-type-filter-#{membership_type.id}" }= membership_type.name

@@ -1,0 +1,13 @@
+.modal-header
+  %h4.modal-title= report.label
+  %button.btn-close{ type: 'button', 'data-bs-dismiss' => 'modal', 'aria-label' => 'Close' }
+.modal-body
+  -# The format buttons post to different paths, so a per-form token would only be valid for one of them.
+  = form_with url: path_for_report_format(report, report.formats.first), id: 'report-filter-form', authenticity_token: form_authenticity_token do
+    - values = report.defaults
+    - report.filters.each do |filter|
+      = render "reports/filters/#{filter}", values: values, report: report
+.modal-footer
+  %button.btn.btn-secondary{ type: 'button', 'data-bs-dismiss' => 'modal' } Cancel
+  - report.formats.each do |format|
+    %button.btn.btn-primary{ type: 'submit', form: 'report-filter-form', formaction: path_for_report_format(report, format) }= report_format_label(format)

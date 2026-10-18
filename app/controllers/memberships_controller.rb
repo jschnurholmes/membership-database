@@ -6,10 +6,12 @@ class MembershipsController < ApplicationController
   # GET /memberships.json
   def index
     @q = Membership.ransack(params[:q])
-    @memberships = @q.result
     respond_to do |format|
-      format.html {render :index}
-      format.csv {send_data Membership.to_csv}
+      format.html do
+        @pagy, @memberships = paginate(@q.result.order(:id).preload(:membership_type, :mailing_preference, :members, :membership_periods))
+        render :index
+      end
+      format.csv {send_csv Membership.to_csv}
     end
   end
 

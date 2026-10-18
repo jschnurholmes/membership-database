@@ -42,6 +42,12 @@ gem 'jquery-rails', '~> 4.6'
 # Search capabilities
 gem 'ransack', '~> 4.2'
 
+# Pagination
+gem 'pagy', '~> 43.7'
+
+# QR code generation for membership cards
+gem 'rqrcode', '~> 2.2'
+
 # Bootstrap for Rails with Sprockets (includes JS)
 gem 'bootstrap', '~> 5.3'
 gem 'popper_js', '~> 2.11'

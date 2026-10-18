@@ -10,15 +10,24 @@ module ApplicationHelper
   #   content_tag(:a, name, html_options.merge(:href => href, :onclick => onclick))
   # end
 
-  def link_to_add_fields(f, association, &block)
+  def link_to_add_fields(f, association, label, &block)
     new_object = f.object.send(association).klass.new
     id = new_object.object_id
     fields = f.fields_for(association, new_object, child_index: id) do |builder|
       render(association.to_s, f: builder)
     end
-    link_to('#', {:class => 'btn btn-info btn-xs add_fields',
+    link_to('#', {:class => 'btn btn-info btn-sm add_fields', 'aria-label' => label,
                  :data => {:id => id, :fields => fields.gsub("\n", '')}}, :remote => true,
             &block)
+  end
+
+  def nav_section_active?(section)
+    controller_name == section
+  end
+
+  def nav_link(label, path, section)
+    active = nav_section_active?(section)
+    link_to label, path, class: class_names('nav-link', active: active), aria: { current: ('page' if active) }
   end
 
   def tag_color_styles

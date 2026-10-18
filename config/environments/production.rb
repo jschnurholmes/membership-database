@@ -47,6 +47,10 @@ Rails.application.configure do
   # to treat every request as if it arrived over SSL already.
   config.assume_ssl = true
 
+  # Trust the proxies in front of the app (CloudFront's origin-facing ranges) so request.remote_ip is the visitor.
+  config.action_dispatch.trusted_proxies = ActionDispatch::RemoteIp::TRUSTED_PROXIES +
+    ENV.fetch('TRUSTED_PROXY_RANGES', '').split(',').map { |range| IPAddr.new(range.strip) }
+
   # Set to :debug to see everything in the log.
   config.log_level = :info
 

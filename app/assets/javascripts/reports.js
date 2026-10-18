@@ -1,141 +1,111 @@
-if (typeof(CDNY) === 'undefined' )
-  CDNY = {};
-
-CDNY.getMembers = function() {
-    var members_path = '/api/v1/members';
-    var req_options  = {
-        url: members_path + '.json',
-        dataType: 'json',
-        contentType: 'application/json; charset=UTF-8',
-        async: true,
-        method: 'GET',
-        success: this.updateMembers,
-        error: function(request, status, error){
-            console.log(request.url +" (" + status + "): " + error );
-        }
-    };
-
-    $.ajax(req_options)
-};
-
-CDNY.updateMembers = function(data, status, request) {
-    if (typeof(data) === "string")
-        data = JSON.parse(data);
-    else if (typeof(data) !== "object")
-        alert("Don't know how to handle these data!");
-    CDNY._members = data;
-
-    for ( var i = 0; i < CDNY._updateCallbacks.length; i++ ) {
-        CDNY._updateCallbacks[i].call( this, data );
-    }
-};
-
-CDNY.members = function() {
-  if ( typeof(CDNY._members) !== 'undefined' ) {
-      return CDNY._members;
-  } else {
-      this.getMembers();
-      return null;
-  }
-};
-
-CDNY.onUpdate = function(callback) {
-    if (typeof(CDNY._updateCallbacks) == 'undefined' ) {
-        CDNY._updateCallbacks = new Array;
-    }
-    CDNY._updateCallbacks.push(callback);
-};
-
-CDNY.clearUpdateCallbacks = function() {
-    CDNY._updateCallbacks = new Array;
-};
-
-CDNY.generateCheckboxesForData = function(data, labelFunction, valueFunction) {
-    var markup = '<div class="container-fluid"><div class="row">';
-    var myData = data.sort(function(a, b){
-        if (a.last_name + a.first_name < b.last_name + b.first_name)
-            return -1;
-        if (a.last_name + a.first_name > b.last_name + b.first_name)
-            return 1;
-        return 0;
-    }).filter(function(member){
-        if ( member.expiration_date == 'N/A' )
-            return false;
-
-        var expDate = new Date(member.expiration_date);
-        return Date.now() <= expDate;
-    });
-
-    for(var i = 0; i < myData.length; i++ ) {
-        var member = myData[i];
-        var label = member.last_name + ', ' + member.first_name;
-
-        markup = markup.concat(
-            '<label class="col-md-4"><input type=checkbox name="members[]" value="', member.member_id, '">', label, '</label>'
-        )
-    }
-
-    markup.concat(
-      '</div></div>'
-    );
-
-    return markup;
-};
-
 $(document).ready(function() {
-    var enableMemberSelector = function() {
-      var memeberSelectorModal = $('#member-selector');
+    var MEMBER_FIELD = 'q[with_members][]';
 
-      memeberSelectorModal.on('show.bs.modal', function(e) {
-        if( CDNY.members() == null ) {
-          var markup = "<div class='uil-ripple-css' style='transform:scale(0.48);'><div></div><div></div></div>";
-          var modalBody = $('#member-selector .modal-body');
-          modalBody.html(markup);
+    var reportFilterModal = $('#report-filter-modal');
+    var reportFilterRequest = null;
+    var memberOptionsRequest = null;
+    var selectedMembers = new Set();
 
-          CDNY.onUpdate(function(data){
-            var formMarkup = '<form id="member-selector-form" action="/reports/membership_cards" method="post">';
-            formMarkup = formMarkup.concat( CDNY.generateCheckboxesForData( data ) );
-            formMarkup = formMarkup.concat(
-                '<input type="hidden" name="authenticity_token" value="',
-                $('meta[name="csrf-token"]').attr('content'), '">'
-            );
-            formMarkup = formMarkup.concat( '</form>' );
-            modalBody.html(formMarkup);
-          });
-        }
-      });
-
-      memeberSelectorModal.find('button[type="submit"]').on('click', function(e){
-        var form = $( $(this).data('form') );
-        form.submit();
-      })
+    var memberCheckboxes = function() {
+        return reportFilterModal.find('input[type="checkbox"][name="' + MEMBER_FIELD + '"]');
     };
 
-    var enableEffectiveDateSelector = function() {
-      var effectiveDateSelectorModal = $('#effective-date-selector');
+    var shownMemberIds = function() {
+        return new Set(memberCheckboxes().map(function() { return this.value; }).get());
+    };
 
-      effectiveDateSelectorModal.on('show.bs.modal', function(e) {
-        var formMarkup = '<form id="effective-date-selector-form" action="/reports/membership_cards" method="post">';
-        formMarkup = formMarkup.concat(
-             '<input type="hidden" name="authenticity_token" value="',
-            $('meta[name="csrf-token"]').attr('content'),
-            '">',
+    var hiddenSelectedMembers = function() {
+        var shown = shownMemberIds();
+        return Array.from(selectedMembers).filter(function(id) { return !shown.has(id); });
+    };
 
-            '<input type="date" name="effective_date" value="', (new Date()).toJSON().slice(0, 10).trim() ,'">',
+    var updateHiddenMemberNotice = function() {
+        var hiddenCount = hiddenSelectedMembers().length;
+        var notice = reportFilterModal.find('#member-filter-hidden-notice');
+        notice.text(hiddenCount === 1
+            ? '1 selected member is hidden by the other filters and will still be included.'
+            : hiddenCount + ' selected members are hidden by the other filters and will still be included.');
+        notice.prop('hidden', hiddenCount === 0);
+    };
 
-            '</form>'
+    var refreshMemberOptions = function(form) {
+        var options = form.find('#member-filter-options');
+        if (options.length === 0) {
+            return;
+        }
+
+        if (memberOptionsRequest) {
+            memberOptionsRequest.abort();
+        }
+
+        var otherFilters = form.find(':input')
+            .not('[name="' + MEMBER_FIELD + '"]')
+            .not('[name="authenticity_token"]')
+            .serialize();
+
+        memberOptionsRequest = $.get(options.data('url'), otherFilters)
+            .done(function(html) {
+                options.html(html);
+                memberCheckboxes().each(function() {
+                    this.checked = selectedMembers.has(this.value);
+                });
+                updateHiddenMemberNotice();
+            });
+    };
+
+    reportFilterModal.on('show.bs.modal', function(e) {
+        var content = reportFilterModal.find('.modal-content');
+        content.html(
+            '<div class="modal-body">' +
+            '<div class="uil-ripple-css" style="transform:scale(0.48);"><div></div><div></div></div>' +
+            '</div>'
         );
 
-        var modalBody = $('#effective-date-selector .modal-body');
-        modalBody.html(formMarkup);
-      });
+        if (reportFilterRequest) {
+            reportFilterRequest.abort();
+        }
+        if (memberOptionsRequest) {
+            memberOptionsRequest.abort();
+        }
 
-      effectiveDateSelectorModal.find('button[type="submit"]').on('click', function(e){
-        var form = $( $(this).data('form') );
-        form.submit();
-      })
-    };
+        reportFilterRequest = $.get($(e.relatedTarget).data('filters-url'))
+            .done(function(html) {
+                content.html(html);
+                selectedMembers = new Set(memberCheckboxes().filter(':checked').map(function() { return this.value; }).get());
+                updateHiddenMemberNotice();
+            })
+            .fail(function(request, status) {
+                if (status === 'abort') {
+                    return;
+                }
+                content.html(
+                    '<div class="modal-body">The filters for this report could not be loaded. Reload the page and try again.</div>' +
+                    '<div class="modal-footer">' +
+                    '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>' +
+                    '</div>'
+                );
+            });
+    });
 
-    enableMemberSelector();
-    enableEffectiveDateSelector();
+    reportFilterModal.on('change', '#report-filter-form :input', function() {
+        if (this.name === MEMBER_FIELD) {
+            if (this.checked) {
+                selectedMembers.add(this.value);
+            } else {
+                selectedMembers.delete(this.value);
+            }
+            updateHiddenMemberNotice();
+        } else {
+            refreshMemberOptions($(this.form));
+        }
+    });
+
+    reportFilterModal.on('submit', '#report-filter-form', function() {
+        var form = $(this);
+        form.find('input.hidden-member-selection').remove();
+        hiddenSelectedMembers().forEach(function(id) {
+            $('<input>', { type: 'hidden', name: MEMBER_FIELD, value: id, 'class': 'hidden-member-selection' }).appendTo(form);
+        });
+        reportFilterModal.modal('hide');
+    });
 });

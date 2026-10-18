@@ -38,7 +38,7 @@ FROM ruby:3.3.6-slim AS production
 WORKDIR /app
 
 RUN apt-get update -qq && \
-    apt-get install -y libmariadb3 && \
+    apt-get install -y libmariadb3 tzdata && \
     rm -rf /var/lib/apt/lists/*
 
 RUN groupadd --system app && useradd --system --gid app app
